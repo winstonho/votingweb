@@ -7,8 +7,9 @@ import 'package:testweb/Page/ElectionResultPage.dart';
 
 class Voting extends StatefulWidget {
   final Election currentElection;
+  int remainingCredits;
 
-  Voting(this.currentElection);
+  Voting(this.currentElection, this.remainingCredits);
 
   @override
   _VotingState createState() => _VotingState(
@@ -17,7 +18,14 @@ class Voting extends StatefulWidget {
 
 class _VotingState extends State<Voting> {
   List<int> voteNumber;
+
+  List<int> numVotes = [0, 0, 0, 0, 0, 0];
+
   String name = "testing";
+  int totalCredits = 36;
+  int cost = 0;
+  int prevCost = 0;
+  int totalCost = 0;
 
   _VotingState(this.voteNumber);
 
@@ -61,8 +69,7 @@ class _VotingState extends State<Voting> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-
-                    Text("Budget"),
+                    Text("Credits: " + widget.remainingCredits.toString()),
                   ],
                 ),
               ),
@@ -106,7 +113,55 @@ class _VotingState extends State<Voting> {
               TextButton(
                 onPressed: () {
                   setState(() {
-                    voteNumber[index]++;
+                    print((widget.remainingCredits.toString()));
+
+                    for (int i = 0;
+                        i < widget.currentElection.candidateList.length;
+                        ++i) {
+                      if (i == index) continue;
+
+                      print(i.toString() +
+                          ': tCost: ' +
+                          (voteNumber[i].toString()));
+                      print('tCost: ' +
+                          ((voteNumber[i] * voteNumber[i]).toString()));
+
+                      totalCost = voteNumber[i] * voteNumber[i] + totalCost;
+
+                      //print('tCost: ' + (totalCost.toString()));
+                    }
+
+                    print('totalCost: ' +
+                        (totalCost +
+                                (voteNumber[index] + 1) *
+                                    (voteNumber[index] + 1))
+                            .toString());
+
+                    if ((totalCost +
+                            (voteNumber[index] + 1) *
+                                (voteNumber[index] + 1)) <=
+                        36)
+                    /*
+                    if (((widget.remainingCredits - cost + prevCost)
+                            ) >
+                        0)*/
+                    {
+                      prevCost = (voteNumber[index] * voteNumber[index]);
+
+                      print('prevCost: ' + (prevCost.toString()));
+                      voteNumber[index]++;
+
+                      cost = (voteNumber[index] * voteNumber[index]);
+                      print('cost: ' + (cost.toString()));
+
+                      widget.remainingCredits =
+                          widget.remainingCredits - cost + prevCost;
+
+                      print('remainingCost: ' +
+                          (widget.remainingCredits.toString()));
+                    }
+
+                    totalCost = 0;
                   });
                 },
                 child: Icon(Icons.arrow_drop_up),
@@ -122,7 +177,13 @@ class _VotingState extends State<Voting> {
               TextButton(
                 onPressed: () {
                   setState(() {
-                    if (voteNumber[index] > 0) voteNumber[index]--;
+                    if (voteNumber[index] > 0) {
+                      prevCost = (voteNumber[index] * voteNumber[index]);
+                      voteNumber[index]--;
+                      cost = (voteNumber[index] * voteNumber[index]);
+                      widget.remainingCredits =
+                          widget.remainingCredits - cost + prevCost;
+                    }
                   });
                 },
                 child: Icon(Icons.arrow_drop_down),
@@ -162,7 +223,7 @@ class _VotingState extends State<Voting> {
   Widget nameTextField() {
     return Form(
       child: TextField(
-        onChanged: (String val){
+        onChanged: (String val) {
           name = val;
         },
         decoration: InputDecoration(
