@@ -57,6 +57,11 @@ class DatabaseService {
         .document(id).get().then((value) =>  Election().fromJson(value.data,value.reference)).asStream();
   }
 
+  Stream<VoterList> getVoterListStreamWithID(String id)  {
+    return  voterListCollection.document(id).get()
+        .then((value) =>  VoterList().fromJson(value.data)).asStream();
+  }
+
 /*
   List<String> _tockenFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.documents.map((doc) {
