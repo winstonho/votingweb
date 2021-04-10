@@ -3,41 +3,49 @@ import 'package:testweb/Model/Candidate.dart';
 import 'package:testweb/Model/Election.dart';
 import 'package:testweb/Model/VoterList.dart';
 import 'package:testweb/service/DatabaseService.dart';
+import 'package:testweb/Page/ElectionResultPage.dart';
 
 class Voting extends StatefulWidget {
   final Election currentElection;
+
   Voting(this.currentElection);
+
   @override
-  _VotingState createState() => _VotingState(List<int>.generate(currentElection.candidateList.length, (index) => 0));
+  _VotingState createState() => _VotingState(
+      List<int>.generate(currentElection.candidateList.length, (index) => 0));
 }
 
 class _VotingState extends State<Voting> {
   List<int> voteNumber;
   String name = "testing";
+
   _VotingState(this.voteNumber);
 
-  void submitForm() async
-  {
+  void submitForm() async {
     print("testing");
     Voter vote = Voter(name: name);
-    for(int i = 0; i < widget.currentElection.candidateList.length; ++i )
-    {
-        Candidate candidate  = Candidate( name : widget.currentElection.candidateList[i].name, description: widget.currentElection.candidateList[i].description);
+    for (int i = 0; i < widget.currentElection.candidateList.length; ++i) {
+      Candidate candidate = Candidate(
+          name: widget.currentElection.candidateList[i].name,
+          description: widget.currentElection.candidateList[i].description);
 
-        //Candidate candidate  = widget.currentElection.candidateList[i]; //this is actually a reference.
+      //Candidate candidate  = widget.currentElection.candidateList[i]; //this is actually a reference.
 
-        widget.currentElection.candidateList[i].numberOfVote += voteNumber[i];
-        print("Before setting candidate.numberOfVote: " + widget.currentElection.candidateList[i].numberOfVote.toString());
-        candidate.numberOfVote = 0;
-        print("After setting candidate.numberOfVote: " + widget.currentElection.candidateList[i].numberOfVote.toString());
-        candidate.numberOfVote += voteNumber[i];
+      widget.currentElection.candidateList[i].numberOfVote += voteNumber[i];
+      print("Before setting candidate.numberOfVote: " +
+          widget.currentElection.candidateList[i].numberOfVote.toString());
+      candidate.numberOfVote = 0;
+      print("After setting candidate.numberOfVote: " +
+          widget.currentElection.candidateList[i].numberOfVote.toString());
+      candidate.numberOfVote += voteNumber[i];
 
-        vote.candidateList.add(candidate);
+      vote.candidateList.add(candidate);
     }
     await DatabaseService().updateVoteResult(widget.currentElection, vote);
 
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => ElectionResult()));
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -53,17 +61,19 @@ class _VotingState extends State<Voting> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text('Name'),
-                   Text("Budget"),
+
+                    Text("Budget"),
                   ],
                 ),
               ),
               // for each candidate fn
               Column(
-              children: List.generate(widget.currentElection.candidateList.length, (index) {
-                return createCandidateOption(widget.currentElection.candidateList[index],index);}
-                  ),
-                ),
+                children: List.generate(
+                    widget.currentElection.candidateList.length, (index) {
+                  return createCandidateOption(
+                      widget.currentElection.candidateList[index], index);
+                }),
+              ),
               SizedBox(
                 height: 50,
               ),
@@ -75,7 +85,7 @@ class _VotingState extends State<Voting> {
     );
   }
 
-  Widget createCandidateOption(Candidate candidate,int index) {
+  Widget createCandidateOption(Candidate candidate, int index) {
     return Container(
       width: 1000,
       decoration: BoxDecoration(
@@ -94,9 +104,11 @@ class _VotingState extends State<Voting> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               TextButton(
-                onPressed: () {setState(() {
-                  voteNumber[index]++;
-                });},
+                onPressed: () {
+                  setState(() {
+                    voteNumber[index]++;
+                  });
+                },
                 child: Icon(Icons.arrow_drop_up),
               ),
               Container(
@@ -108,10 +120,11 @@ class _VotingState extends State<Voting> {
                   ),
                   child: Text('Votes: ' + voteNumber[index].toString())),
               TextButton(
-                onPressed: () {setState(() {
-                  if(voteNumber[index] > 0)
-                    voteNumber[index]--;
-                });},
+                onPressed: () {
+                  setState(() {
+                    if (voteNumber[index] > 0) voteNumber[index]--;
+                  });
+                },
                 child: Icon(Icons.arrow_drop_down),
               )
             ],
@@ -128,7 +141,7 @@ class _VotingState extends State<Voting> {
       color: Colors.transparent,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.grey,
+            color: Colors.grey,
             border: Border.all(style: BorderStyle.solid, width: 1.0),
             borderRadius: BorderRadius.circular(10.0)),
         child: Column(
@@ -149,16 +162,19 @@ class _VotingState extends State<Voting> {
   Widget nameTextField() {
     return Form(
       child: TextField(
+        onChanged: (String val){
+          name = val;
+        },
         decoration: InputDecoration(
-      enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.white24)),
-      labelText: 'Please enter name',
-      labelStyle: TextStyle(
-          fontFamily: 'Montserrat',
-          fontWeight: FontWeight.bold,
-          color: Colors.grey),
-      focusedBorder:
-          UnderlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
+          enabledBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white24)),
+          labelText: 'Please enter name',
+          labelStyle: TextStyle(
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.bold,
+              color: Colors.grey),
+          focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white54)),
         ),
       ),
     );
