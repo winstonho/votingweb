@@ -1,25 +1,46 @@
-import 'dart:io';
+
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:testweb/Model/Election.dart';
+import 'package:testweb/Model/VoterList.dart';
 
 class DatabaseService {
-  final CollectionReference electionCollection =
-  Firestore.instance.collection("election");
+  final CollectionReference electionCollection = Firestore.instance.collection("election");
+  final CollectionReference voterListCollection = Firestore.instance.collection("voterList");
 
 
 
-  //will
+  //will create a new data in database if it not in the database
+  Future createElection(Election data) async {
+     await electionCollection.document(data.id).setData(data.toJson());
+
+     VoterList list = VoterList();
+     list.id = data.id;
+     list.electionID = data.id;
+     await voterListCollection.document(data.id).setData(list.toJson());
+  }
+
   Future updateElection(Election data) async {
     return await electionCollection
-        .document(data.uid)
+        .document(data.id)
         .setData(data.toJson());
   }
 
   Future getElectionWithID(String id) async {
     return await electionCollection
-        .document(id).get().then((value) =>  Election().fromJson(value.data));
+        .document(id).get().then((value) =>  Election().fromJson(value.data,value.reference));
   }
+
+  Future getVoterListWithID(String id) async {
+    return await voterListCollection
+        .document(id).get().then((value) =>  Election().fromJson(value.data,value.reference));
+  }
+
+  Stream<Election> getElectionStreamWithID(String id)  {
+    return  electionCollection
+        .document(id).get().then((value) =>  Election().fromJson(value.data,value.reference)).asStream();
+  }
+
 /*
   List<String> _tockenFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.documents.map((doc) {
@@ -86,13 +107,5 @@ class DatabaseService {
       print(e.toString());
     }
   }*/
-
-
-
-// Future<List<Class>> qureMyClass(String uid)
-//{
-// Query temp = userCollection.where('instructorID' == uid);
-//temp.getDocuments();
-//}
 
 }

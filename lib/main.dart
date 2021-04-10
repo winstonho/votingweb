@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+//import 'package:http/http.dart' as http;
 import 'package:testweb/Model/Candidate.dart';
 import 'package:testweb/Model/Election.dart';
 import 'package:testweb/service/DatabaseService.dart';
-import 'package:uuid/uuid.dart';
+//import 'package:uuid/uuid.dart';
 
 void main() {
   runApp(MyApp());
@@ -53,22 +53,22 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  Future<String> _incrementCounter() async {
-    Election temp = Election(uid: "hello world");
+  Future<String> createElectionData() async {
+    Election temp = Election(id: "hello world");
     temp.name = "Testing Election";
     temp.candidateList.add(Candidate(name: "dragon"));
     temp.candidateList.add(Candidate(name: "tiger"));
 
-    await DatabaseService().updateElection(temp);
+    await DatabaseService().createElection(temp);
 
-    return "add election";
+    return "create election";
   }
 
-  Future<String> _getElection() async {
+  Future<Election> _getElection() async {
 
     Election temp = await DatabaseService().getElectionWithID("hello world");
 
-    return "get election";
+    return temp;
   }
 
   @override
@@ -110,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 future: _getElection(),
                 // a previously-obtained Future<String> or null
                 builder:
-                    (BuildContext context, AsyncSnapshot<String> snapshot) {
+                    (BuildContext context, AsyncSnapshot<Election> snapshot) {
                   switch (snapshot.connectionState) {
                     case ConnectionState.waiting:
                       return Text('Loading....');

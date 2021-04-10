@@ -12,7 +12,7 @@ class Candidate
   //List<ClassRecord> bookingHistory= <ClassRecord>[];
 
 
-  Candidate({@required this.name});
+  Candidate({this.name});
 
 
   Map<String, dynamic> toJson() =>
@@ -21,7 +21,7 @@ class Candidate
     'name'          : name
   };
 
-  Candidate fromJson ( Map<String, dynamic> json)
+   Candidate fromJson ( Map<String, dynamic> json)
   {
     numberOfVote  = json['numberOfVote'] as int;
     name = json['name'] as String;
