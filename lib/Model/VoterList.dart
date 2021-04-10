@@ -1,33 +1,31 @@
 import 'dart:convert' ;
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:testweb/Model/Candidate.dart';
 
 
 class Voter
 {
   String name = "dummy";
-  int numberOfVote = 0;
-  String candidateName = '';
+  List<Candidate> candidateList = <Candidate>[];
   DocumentReference reference;
   //List<String> bookingIdHistory = <String>[];
   //List<ClassRecord> bookingHistory= <ClassRecord>[];
 
 
-  Voter({this.name , this.candidateName , this.numberOfVote = 0});
+  Voter({this.name});
 
 
   Map<String, dynamic> toJson() =>
       {
-        'numberOfVote'  : numberOfVote,
         'name'          : name,
-        'candidateName' : candidateName
+        'candidateList' : jsonEncode(candidateList)
       };
 
   Voter fromJson ( Map<String, dynamic> json)
   {
-    numberOfVote  = json['numberOfVote'] as int;
     name = json['name'] as String;
-    candidateName = json['candidateName'] as String;
+    var temp = jsonDecode(json['candidateList']) as List;
+    candidateList =  temp.map((i) => Candidate().fromJson(i)).toList();
     return this;
   }
 
@@ -50,14 +48,14 @@ class VoterList
       {
         'id'  : id,
         'electionID' : electionID,
-        'candidateList' : jsonEncode(voterList)
+        'voterList' : jsonEncode(voterList)
       };
 
-  VoterList fromJson ( Map<String, dynamic> json, DocumentReference reference)
+  VoterList fromJson ( Map<String, dynamic> json)
   {
     id  = json['id'] as String;
     electionID  = json['electionID'] as String;
-    var temp = jsonDecode(json['candidateList']) as List;
+    var temp = jsonDecode(json['voterList']) as List;
     voterList =  temp.map((i) => Voter().fromJson(i)).toList();
     this.reference = reference;
     return this;

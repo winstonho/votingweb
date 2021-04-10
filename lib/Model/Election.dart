@@ -23,17 +23,18 @@ class Election
         'name': name,
         'startDate': startDate.toString(),
         'endDate': startDate.toString(),
-        'candidateList' : jsonEncode(candidateList)
+        'candidateList' : jsonEncode(candidateList),
+        'voterListId'   : voterListId
       };
 
   Election fromJson ( Map<String, dynamic> json , DocumentReference reference)
   {
     id  = json['id'] as String;
     name = json['name'] as String;
+    voterListId = json['voterListId'] as String;
     startDate = DateTime.parse(json['startDate']);
     endDate = DateTime.parse(json['endDate']);
     var temp = jsonDecode(json['candidateList']) as List;
-    print(temp);
     candidateList =  temp.map((i) => Candidate().fromJson(i)).toList();
     this.reference = reference;
     return this;

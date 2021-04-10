@@ -1,5 +1,7 @@
 
 
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:testweb/Model/Election.dart';
 import 'package:testweb/Model/VoterList.dart';
@@ -12,12 +14,15 @@ class DatabaseService {
 
   //will create a new data in database if it not in the database
   Future createElection(Election data) async {
-     await electionCollection.document(data.id).setData(data.toJson());
+
 
      VoterList list = VoterList();
      list.id = data.id;
      list.electionID = data.id;
+     data.voterListId = data.id;
      await voterListCollection.document(data.id).setData(list.toJson());
+     await electionCollection.document(data.id).setData(data.toJson());
+
   }
 
   Future updateElection(Election data) async {
@@ -26,14 +31,25 @@ class DatabaseService {
         .setData(data.toJson());
   }
 
+  void  updateVoteResult(Election data,Voter voter) async {
+     VoterList list = await getVoterListWithID(data.voterListId);
+     await data.reference.updateData({'candidateList' : jsonEncode(data.candidateList)});
+
+     list.voterList.add(voter);
+     voterListCollection.document(data.id).setData(list.toJson());
+
+  }
+
+
   Future getElectionWithID(String id) async {
     return await electionCollection
         .document(id).get().then((value) =>  Election().fromJson(value.data,value.reference));
   }
 
-  Future getVoterListWithID(String id) async {
-    return await voterListCollection
-        .document(id).get().then((value) =>  Election().fromJson(value.data,value.reference));
+  Future<VoterList> getVoterListWithID(String id) async {
+    var data = await Firestore.instance.collection("voterList").document(id).get();
+    if(!data.exists) return null;
+    return VoterList().fromJson(data.data);
   }
 
   Stream<Election> getElectionStreamWithID(String id)  {

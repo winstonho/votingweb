@@ -1,30 +1,29 @@
-import 'dart:convert' ;
 
-import 'package:flutter/cupertino.dart';
 
 
 
 class Candidate
 {
   String name = "dummy";
+  String description = "dummy";
   int numberOfVote = 0;
-  //List<String> bookingIdHistory = <String>[];
-  //List<ClassRecord> bookingHistory= <ClassRecord>[];
 
 
-  Candidate({this.name});
+  Candidate({this.name,this.description =''});
 
 
   Map<String, dynamic> toJson() =>
   {
     'numberOfVote'  : numberOfVote,
-    'name'          : name
+    'name'          : name,
+    'description'   : description
   };
 
    Candidate fromJson ( Map<String, dynamic> json)
   {
     numberOfVote  = json['numberOfVote'] as int;
     name = json['name'] as String;
+    description = json['description'] as String;
     return this;
   }
 

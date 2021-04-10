@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 //import 'package:http/http.dart' as http;
 import 'package:testweb/Model/Candidate.dart';
 import 'package:testweb/Model/Election.dart';
+import 'package:testweb/Page/ElectionResultPage.dart';
 import 'package:testweb/service/DatabaseService.dart';
 //import 'package:uuid/uuid.dart';
 import 'package:testweb/Page/VotingPage.dart';
@@ -11,6 +12,47 @@ void main() {
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+
+
+  Future<String> createElectionData() async {
+    Election temp = Election(id: "hello world");
+    temp.name = "Testing Election";
+    temp.candidateList.add(Candidate(name: "dragon", description: "Dragon it the best"));
+    temp.candidateList.add(Candidate(name: "tiger", description: "Tiger is the best"));
+
+    await DatabaseService().createElection(temp);
+
+    return "create election";
+  }
+
+  Future<Election> _getElection() async {
+
+    Election temp = await DatabaseService().getElectionWithID("hello world");
+
+    return temp;
+  }
+
+  Widget votePage()
+  {
+    return FutureBuilder(
+        future: _getElection(),
+        // a previously-obtained Future<String> or null
+        builder:
+            (BuildContext context, AsyncSnapshot<Election> snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return Text('Loading....');
+            default:
+              if (snapshot.hasError)
+                return Text('Error: ${snapshot.error}');
+              else if(!snapshot.hasData)
+                return Text('There no election');
+              else
+                return Voting(snapshot.data);
+          }
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -27,115 +69,13 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: Voting()// MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+      home: votePage());
+
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
-  final String title;
 
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  Future<String> createElectionData() async {
-    Election temp = Election(id: "hello world");
-    temp.name = "Testing Election";
-    temp.candidateList.add(Candidate(name: "dragon"));
-    temp.candidateList.add(Candidate(name: "tiger"));
-
-    await DatabaseService().createElection(temp);
-
-    return "create election";
-  }
-
-  Future<Election> _getElection() async {
-
-    Election temp = await DatabaseService().getElectionWithID("hello world");
-
-    return temp;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            FutureBuilder(
-                future: _getElection(),
-                // a previously-obtained Future<String> or null
-                builder:
-                    (BuildContext context, AsyncSnapshot<Election> snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                      return Text('Loading....');
-                    default:
-                      if (snapshot.hasError)
-                        return Text('Error: ${snapshot.error}');
-                      else
-                        return Text('Result: ${snapshot.data}');
-                  }
-                }),
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _getElection,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
-  }
-}

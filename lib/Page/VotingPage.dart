@@ -1,11 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:testweb/Model/Candidate.dart';
+import 'package:testweb/Model/Election.dart';
+import 'package:testweb/Model/VoterList.dart';
+import 'package:testweb/service/DatabaseService.dart';
 
 class Voting extends StatefulWidget {
+  final Election currentElection;
+  Voting(this.currentElection);
   @override
-  _VotingState createState() => _VotingState();
+  _VotingState createState() => _VotingState(List<int>.generate(currentElection.candidateList.length, (index) => 0));
 }
 
 class _VotingState extends State<Voting> {
+  List<int> voteNumber;
+  String name = "testing";
+  _VotingState(this.voteNumber);
+
+  void submitForm() async
+  {
+    print("testing");
+    Voter vote = Voter(name: name);
+    for(int i = 0; i < widget.currentElection.candidateList.length; ++i )
+    {
+        Candidate candidate  = Candidate( name : widget.currentElection.candidateList[i].name, description: widget.currentElection.candidateList[i].description);
+
+        //Candidate candidate  = widget.currentElection.candidateList[i]; //this is actually a reference.
+
+        widget.currentElection.candidateList[i].numberOfVote += voteNumber[i];
+        print("Before setting candidate.numberOfVote: " + widget.currentElection.candidateList[i].numberOfVote.toString());
+        candidate.numberOfVote = 0;
+        print("After setting candidate.numberOfVote: " + widget.currentElection.candidateList[i].numberOfVote.toString());
+        candidate.numberOfVote += voteNumber[i];
+
+        vote.candidateList.add(candidate);
+    }
+    await DatabaseService().updateVoteResult(widget.currentElection, vote);
+
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,28 +47,27 @@ class _VotingState extends State<Voting> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              nameTextField(),
               Container(
                 height: 50,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                   // nameTextField(),
                     Text('Name'),
                    Text("Budget"),
                   ],
                 ),
               ),
               // for each candidate fn
-              createCandidateOption('name', 'description'),
-              createCandidateOption('name', 'description'),
-              createCandidateOption('name', 'description'),
-              createCandidateOption('name', 'description'),
-              createCandidateOption('name', 'description'),
-              createCandidateOption('name', 'description'),
+              Column(
+              children: List.generate(widget.currentElection.candidateList.length, (index) {
+                return createCandidateOption(widget.currentElection.candidateList[index],index);}
+                  ),
+                ),
               SizedBox(
                 height: 50,
               ),
-              GestureDetector(onTap: () {}, child: createSubmitButton())
+              GestureDetector(onTap: submitForm, child: createSubmitButton())
             ],
           ),
         ),
@@ -43,7 +75,7 @@ class _VotingState extends State<Voting> {
     );
   }
 
-  Widget createCandidateOption(String name, String description) {
+  Widget createCandidateOption(Candidate candidate,int index) {
     return Container(
       width: 1000,
       decoration: BoxDecoration(
@@ -56,13 +88,15 @@ class _VotingState extends State<Voting> {
         children: [
           Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [Text(name), Text(description)],
+            children: [Text(candidate.name), Text(candidate.description)],
           ),
           Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              FlatButton(
-                onPressed: () {},
+              TextButton(
+                onPressed: () {setState(() {
+                  voteNumber[index]++;
+                });},
                 child: Icon(Icons.arrow_drop_up),
               ),
               Container(
@@ -72,9 +106,12 @@ class _VotingState extends State<Voting> {
                     border: Border.all(style: BorderStyle.solid, width: 1.0),
                     borderRadius: BorderRadius.circular(10.0),
                   ),
-                  child: Text('Votes: ')),
-              FlatButton(
-                onPressed: () {},
+                  child: Text('Votes: ' + voteNumber[index].toString())),
+              TextButton(
+                onPressed: () {setState(() {
+                  if(voteNumber[index] > 0)
+                    voteNumber[index]--;
+                });},
                 child: Icon(Icons.arrow_drop_down),
               )
             ],
