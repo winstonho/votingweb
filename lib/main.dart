@@ -4,7 +4,7 @@ import 'package:testweb/Model/Candidate.dart';
 import 'package:testweb/Model/Election.dart';
 import 'package:testweb/service/DatabaseService.dart';
 //import 'package:uuid/uuid.dart';
-
+import 'package:testweb/Page/VotingPage.dart';
 void main() {
   runApp(MyApp());
 }
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: Voting()// MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
