@@ -101,10 +101,10 @@ class _VotingState extends State<Voting> {
       ),
       margin: EdgeInsets.fromLTRB(12.0, 6.0, 12, 0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+       // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [Text(candidate.name), Text(candidate.description)],
           ),
           Column(
@@ -120,45 +120,26 @@ class _VotingState extends State<Voting> {
                         ++i) {
                       if (i == index) continue;
 
-                      print(i.toString() +
-                          ': tCost: ' +
-                          (voteNumber[i].toString()));
-                      print('tCost: ' +
-                          ((voteNumber[i] * voteNumber[i]).toString()));
-
                       totalCost = voteNumber[i] * voteNumber[i] + totalCost;
-
-                      //print('tCost: ' + (totalCost.toString()));
                     }
-
-                    print('totalCost: ' +
-                        (totalCost +
-                                (voteNumber[index] + 1) *
-                                    (voteNumber[index] + 1))
-                            .toString());
 
                     if ((totalCost +
                             (voteNumber[index] + 1) *
                                 (voteNumber[index] + 1)) <=
-                        36)
-                    /*
-                    if (((widget.remainingCredits - cost + prevCost)
-                            ) >
-                        0)*/
-                    {
+                        36) {
                       prevCost = (voteNumber[index] * voteNumber[index]);
 
-                      print('prevCost: ' + (prevCost.toString()));
                       voteNumber[index]++;
 
                       cost = (voteNumber[index] * voteNumber[index]);
-                      print('cost: ' + (cost.toString()));
-
                       widget.remainingCredits =
                           widget.remainingCredits - cost + prevCost;
-
-                      print('remainingCost: ' +
-                          (widget.remainingCredits.toString()));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('Insufficient Credits!'),
+                        action:
+                            SnackBarAction(label: "Dismiss", onPressed: () {}),
+                      ));
                     }
 
                     totalCost = 0;
