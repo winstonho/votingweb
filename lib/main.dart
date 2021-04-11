@@ -19,6 +19,10 @@ class MyApp extends StatelessWidget {
     temp.name = "Testing Election";
     temp.candidateList.add(Candidate(name: "dragon", description: "Dragon it the best"));
     temp.candidateList.add(Candidate(name: "tiger", description: "Tiger is the best"));
+    temp.candidateList.add(Candidate(name: "lion", description: "lion is the best"));
+    temp.candidateList.add(Candidate(name: "wolf", description: "wolf is the best"));
+    temp.candidateList.add(Candidate(name: "dog", description: "dog is the best"));
+    temp.candidateList.add(Candidate(name: "cat", description: "cat is the best"));
 
     await DatabaseService().createElection(temp);
 
@@ -34,6 +38,7 @@ class MyApp extends StatelessWidget {
 
   Widget votePage()
   {
+    createElectionData();
     return FutureBuilder(
         future: _getElection(),
         // a previously-obtained Future<String> or null
@@ -48,7 +53,7 @@ class MyApp extends StatelessWidget {
               else if(!snapshot.hasData)
                 return Text('There no election');
               else
-                return Voting(snapshot.data);
+                return Voting(snapshot.data, 36);
           }
         });
   }

@@ -58,7 +58,7 @@ class _ElectionState extends State<ElectionResult> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Text('Name'),
-                    Text("NumberOFVote"),
+                    Text("Votes"),
                   ],
                 ),
               ),
