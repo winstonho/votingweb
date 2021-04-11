@@ -22,22 +22,11 @@ class _ElectionState extends State<ElectionResult> {
 
   List<charts.Series<Results, String>> createData(int topic, VoterList list) {
     print('create data');
-    /*
+
     final resultsData = List.generate(list.voterList.length, (index) {
       int numVotes = list.voterList[index].candidateList[topic].numberOfVote;
       return Results(list.voterList[index].name, numVotes);
     });
-*/
-
-    final resultsData = [
-      Results('0', 0),
-      Results('1', 10),
-      Results('2', 20),
-      Results('3', 30),
-      Results('4', 40),
-      Results('5', 50),
-      Results('6', 60),
-    ];
 
     return [
       charts.Series<Results, String>(
@@ -120,23 +109,21 @@ class _ElectionState extends State<ElectionResult> {
 
   Widget insights(VoterList list) {
     print('insights');
-   // print(list.voterList[0].name);
-    return Scaffold(
-      appBar: AppBar(title: Text('Quadratic voting for SPPT topics')),
-      body: ListView(children: [
-        Column(
-          children: [
-           viewGraphs(0, list),
-          ],
-        ),
-      ]),
+    List<Candidate> candidates;
 
-      /*
-          List.generate(candidates.length, (index) {
-            return viewGraphs(index, list);
-          }
-          */
-    );
+    if (list.voterList.isNotEmpty)
+      candidates = list.voterList[0].candidateList;
+
+    // print(list.voterList[0].name);
+    return Scaffold(
+        appBar: AppBar(title: Text('Quadratic voting for SPPT topics')),
+        body: ListView(children: [
+          Column(
+            children: List.generate(candidates.length, (index) {
+              return viewGraphs(index, list);
+            }
+            ),)
+        ]));
   }
 
   barChart() {
@@ -150,7 +137,7 @@ class _ElectionState extends State<ElectionResult> {
 
   Widget viewGraphs(int count, VoterList list) {
     print('viewGraphs');
-   // print(list.voterList[0].name);
+    // print(list.voterList[0].name);
     seriesList = createData(count, list);
     return Container(
       //padding: EdgeInsets.all(20),

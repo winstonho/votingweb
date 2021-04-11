@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
 
   Widget votePage()
   {
-    createElectionData();
+    // createElectionData();
     return FutureBuilder(
         future: _getElection(),
         // a previously-obtained Future<String> or null
