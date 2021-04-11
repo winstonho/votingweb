@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
   Future<String> createElectionData() async {
     Election temp = Election(id: "hello world");
     temp.name = "Testing Election";
-    temp.candidateList.add(Candidate(name: "dragon", description: "Dragon it the best"));
+    temp.candidateList.add(Candidate(name: "Operationalising Community Support on Sensitive Issues", description: "Dragon it the best"));
     temp.candidateList.add(Candidate(name: "tiger", description: "Tiger is the best"));
     temp.candidateList.add(Candidate(name: "lion", description: "lion is the best"));
     temp.candidateList.add(Candidate(name: "wolf", description: "wolf is the best"));

@@ -58,6 +58,8 @@ class VoterList
     var temp = jsonDecode(json['voterList']) as List;
     voterList =  temp.map((i) => Voter().fromJson(i)).toList();
     this.reference = reference;
+
+    print('fromJson');
     return this;
   }
 
