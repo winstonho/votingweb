@@ -4,6 +4,7 @@ import 'package:testweb/Model/Election.dart';
 import 'package:testweb/Model/VoterList.dart';
 import 'package:testweb/service/DatabaseService.dart';
 import 'package:testweb/Page/ElectionResultPage.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Voting extends StatefulWidget {
   final Election currentElection;
@@ -29,6 +30,15 @@ class _VotingState extends State<Voting> {
 
   _VotingState(this.voteNumber);
 
+  final nameformKey = GlobalKey<FormState>();
+
+  final _url =
+      'https://towardsdatascience.com/what-is-quadratic-voting-4f81805d5a06';
+
+  void _launchURL() async => await canLaunch(_url)
+      ? await launch(_url)
+      : throw 'Could not launch $_url';
+
   void submitForm() async {
     print("testing");
     Voter vote = Voter(name: name);
@@ -51,8 +61,27 @@ class _VotingState extends State<Voting> {
     }
     await DatabaseService().updateVoteResult(widget.currentElection, vote);
 
+    /*
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => ElectionResult()));
+        */
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Vote Submitted. Thank you!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  "Back",
+                ),
+              )
+            ],
+          );
+        });
   }
 
   @override
@@ -60,33 +89,90 @@ class _VotingState extends State<Voting> {
     return Scaffold(
       appBar: AppBar(title: Text('Quadratic voting for SPPT topics')),
       body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              nameTextField(),
-              Container(
-                height: 50,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        child: ListView(
+          children: [
+            SizedBox(
+              height: 30,
+            ),
+            createInstructions('Vote for your favourite topics below.'),
+            createInstructions(
+                'You may vote for more than 1 topic, and allocate more than 1 vote for the topic(s) you have chosen (to express stronger preference), as long as you have enough voting credits.'),
+            createInstructions(
+                'The cost of your votes = number of votes^2 credits (see table below). You are given a total budget of 36 credits. '),
+            SizedBox(
+              height: 30,
+            ),
+            Container(
+                height: 250,
+                child: Column(children: [
+                  Image(image: AssetImage('quadVoteTable.png')),
+                  InkWell(
+                    child: Text(
+                      'Click here for more details on Quadratic voting',
+                      style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          fontSize: 15,
+                          fontFamily: 'Montserrat',
+                          color: Colors.blue),
+                    ),
+                    onTap: () {
+                      _launchURL();
+                    },
+                  ),
+                ])),
+            Column(
+              children: [
+                SizedBox(
+                  height: 50,
+                ),
+                nameTextField(),
+                Container(
+                  height: 50,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text("Credits: " + widget.remainingCredits.toString()),
+                    ],
+                  ),
+                ),
+                // for each candidate fn
+                Column(
+                  children: List.generate(
+                      widget.currentElection.candidateList.length, (index) {
+                    return createCandidateOption(
+                        widget.currentElection.candidateList[index], index);
+                  }),
+                ),
+                SizedBox(
+                  height: 50,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Credits: " + widget.remainingCredits.toString()),
+                    GestureDetector(
+                        onTap: () {
+                          if (nameformKey.currentState.validate()) submitForm();
+                        },
+                        child: createSubmitButton()),
+                    SizedBox(
+                      width: 50,
+                    ),
+                    GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ElectionResult()));
+                        },
+                        child: createResultsButton()),
                   ],
                 ),
-              ),
-              // for each candidate fn
-              Column(
-                children: List.generate(
-                    widget.currentElection.candidateList.length, (index) {
-                  return createCandidateOption(
-                      widget.currentElection.candidateList[index], index);
-                }),
-              ),
-              SizedBox(
-                height: 50,
-              ),
-              GestureDetector(onTap: submitForm, child: createSubmitButton())
-            ],
-          ),
+                SizedBox(
+                  height: 50,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -100,78 +186,114 @@ class _VotingState extends State<Voting> {
         borderRadius: BorderRadius.circular(10.0),
       ),
       margin: EdgeInsets.fromLTRB(12.0, 6.0, 12, 0),
-      child: Row(
-       // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Column(
-            //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [Text(candidate.name), Text(candidate.description)],
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    print((widget.remainingCredits.toString()));
-
-                    for (int i = 0;
-                        i < widget.currentElection.candidateList.length;
-                        ++i) {
-                      if (i == index) continue;
-
-                      totalCost = voteNumber[i] * voteNumber[i] + totalCost;
-                    }
-
-                    if ((totalCost +
-                            (voteNumber[index] + 1) *
-                                (voteNumber[index] + 1)) <=
-                        36) {
-                      prevCost = (voteNumber[index] * voteNumber[index]);
-
-                      voteNumber[index]++;
-
-                      cost = (voteNumber[index] * voteNumber[index]);
-                      widget.remainingCredits =
-                          widget.remainingCredits - cost + prevCost;
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Insufficient Credits!'),
-                        action:
-                            SnackBarAction(label: "Dismiss", onPressed: () {}),
-                      ));
-                    }
-
-                    totalCost = 0;
-                  });
-                },
-                child: Icon(Icons.arrow_drop_up),
+      child: Container(
+        child: Row(
+          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            SizedBox(
+              width: 20,
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                child: Column(
+                  children: [
+                    Text(candidate.name,
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(
+                      candidate.description,
+                      maxLines: 5,
+                    )
+                  ],
+                ),
               ),
-              Container(
-                  padding: EdgeInsets.all(10),
-                  height: 40,
-                  decoration: BoxDecoration(
-                    border: Border.all(style: BorderStyle.solid, width: 1.0),
-                    borderRadius: BorderRadius.circular(10.0),
+            ),
+            Spacer(),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        print((widget.remainingCredits.toString()));
+
+                        for (int i = 0;
+                            i < widget.currentElection.candidateList.length;
+                            ++i) {
+                          if (i == index) continue;
+
+                          totalCost = voteNumber[i] * voteNumber[i] + totalCost;
+                        }
+
+                        if ((totalCost +
+                                (voteNumber[index] + 1) *
+                                    (voteNumber[index] + 1)) <=
+                            36) {
+                          prevCost = (voteNumber[index] * voteNumber[index]);
+
+                          voteNumber[index]++;
+
+                          cost = (voteNumber[index] * voteNumber[index]);
+                          widget.remainingCredits =
+                              widget.remainingCredits - cost + prevCost;
+                        } else {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Insufficient Credits!'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text(
+                                        "Back",
+                                      ),
+                                    )
+                                  ],
+                                );
+                              });
+                        }
+
+                        totalCost = 0;
+                      });
+                    },
+                    child: Icon(Icons.arrow_drop_up),
                   ),
-                  child: Text('Votes: ' + voteNumber[index].toString())),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    if (voteNumber[index] > 0) {
-                      prevCost = (voteNumber[index] * voteNumber[index]);
-                      voteNumber[index]--;
-                      cost = (voteNumber[index] * voteNumber[index]);
-                      widget.remainingCredits =
-                          widget.remainingCredits - cost + prevCost;
-                    }
-                  });
-                },
-                child: Icon(Icons.arrow_drop_down),
-              )
-            ],
-          )
-        ],
+                  Container(
+                      padding: EdgeInsets.all(10),
+                      height: 40,
+                      decoration: BoxDecoration(
+                        border:
+                            Border.all(style: BorderStyle.solid, width: 1.0),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Text('Votes: ' + voteNumber[index].toString())),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        if (voteNumber[index] > 0) {
+                          prevCost = (voteNumber[index] * voteNumber[index]);
+                          voteNumber[index]--;
+                          cost = (voteNumber[index] * voteNumber[index]);
+                          widget.remainingCredits =
+                              widget.remainingCredits - cost + prevCost;
+                        }
+                      });
+                    },
+                    child: Icon(Icons.arrow_drop_down),
+                  )
+                ],
+              ),
+            ),
+            SizedBox(
+              width: 20,
+            )
+          ],
+        ),
       ),
     );
   }
@@ -183,8 +305,12 @@ class _VotingState extends State<Voting> {
       color: Colors.transparent,
       child: Container(
         decoration: BoxDecoration(
-            color: Colors.grey,
-            border: Border.all(style: BorderStyle.solid, width: 1.0),
+            color: Colors.blue,
+            border: Border.all(
+              style: BorderStyle.solid,
+              width: 1.0,
+              color: Colors.blue,
+            ),
             borderRadius: BorderRadius.circular(10.0)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -193,7 +319,40 @@ class _VotingState extends State<Voting> {
             Center(
               child: Text('Submit',
                   style: TextStyle(
-                      fontWeight: FontWeight.bold, fontFamily: 'Montserrat')),
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Montserrat')),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget createResultsButton() {
+    return Container(
+      height: 40.0,
+      width: 300,
+      color: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+            color: Colors.blue,
+            border: Border.all(
+              style: BorderStyle.solid,
+              width: 1.0,
+              color: Colors.blue,
+            ),
+            borderRadius: BorderRadius.circular(10.0)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(width: 10.0),
+            Center(
+              child: Text('View Results',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Montserrat')),
             )
           ],
         ),
@@ -202,23 +361,36 @@ class _VotingState extends State<Voting> {
   }
 
   Widget nameTextField() {
-    return Form(
-      child: TextField(
-        onChanged: (String val) {
-          name = val;
-        },
-        decoration: InputDecoration(
-          enabledBorder: const UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.white24)),
-          labelText: 'Please enter name',
-          labelStyle: TextStyle(
-              fontFamily: 'Montserrat',
-              fontWeight: FontWeight.bold,
-              color: Colors.grey),
-          focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.white54)),
+    return Container(
+      width: 500,
+      child: Form(
+        key: nameformKey,
+        child: TextFormField(
+          validator: (val) => val.isEmpty ? 'Please fill in name' : null,
+          onChanged: (String val) {
+            name = val;
+          },
+          decoration: InputDecoration(
+            enabledBorder: const OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.black)),
+            labelText: 'Please enter name',
+            labelStyle: TextStyle(
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.bold,
+                color: Colors.grey),
+            focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.black)),
+          ),
         ),
       ),
     );
   }
+}
+
+Text createInstructions(String text) {
+  return Text(
+    text,
+    style:
+        TextStyle(fontSize: 20, fontFamily: 'Montserrat', color: Colors.black),
+  );
 }
