@@ -17,12 +17,18 @@ class MyApp extends StatelessWidget {
   Future<String> createElectionData() async {
     Election temp = Election(id: "hello world");
     temp.name = "Testing Election";
-    temp.candidateList.add(Candidate(name: "Operationalising Community Support on Sensitive Issues", description: "Dragon it the best"));
-    temp.candidateList.add(Candidate(name: "tiger", description: "Tiger is the best"));
-    temp.candidateList.add(Candidate(name: "lion", description: "lion is the best"));
-    temp.candidateList.add(Candidate(name: "wolf", description: "wolf is the best"));
-    temp.candidateList.add(Candidate(name: "dog", description: "dog is the best"));
-    temp.candidateList.add(Candidate(name: "cat", description: "cat is the best"));
+    temp.candidateList.add(Candidate(name: "Topic 1: Operationalising Community Support on Sensitive Issues",
+        description: ""));
+    temp.candidateList.add(Candidate(name: "Topic 2: Preparing for Diverse Workplaces",
+        description: ""));
+    temp.candidateList.add(Candidate(name: "Topic 3: Valuing “Heart” and “Hands” in our Society",
+        description: ""));
+    temp.candidateList.add(Candidate(name: "Topic 4: International Social Movements and Singapore Society",
+        description: ""));
+    temp.candidateList.add(Candidate(name: "Topic 5: Fighting Loneliness by Building Friendly Communities",
+        description: ""));
+    temp.candidateList.add(Candidate(name: "Topic 6: Our Soft Power",
+        description: ""));
 
     await DatabaseService().createElection(temp);
 
@@ -38,7 +44,6 @@ class MyApp extends StatelessWidget {
 
   Widget votePage()
   {
-    // createElectionData();
     return FutureBuilder(
         future: _getElection(),
         // a previously-obtained Future<String> or null
