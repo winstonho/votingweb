@@ -113,7 +113,7 @@ class _VotingState extends State<Voting> {
                   Image(image: AssetImage('quadVoteTable.png')),
                   InkWell(
                     child: Text(
-                      'Click here for more details on Quadratic voting',
+                      'Click here for more details on quadratic voting',
                       style: TextStyle(
                           decoration: TextDecoration.underline,
                           fontSize: 15,

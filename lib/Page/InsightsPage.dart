@@ -123,6 +123,9 @@ class _InsightState extends State<Insights> {
       seriesList,
       animate: true,
       vertical: true,
+      domainAxis: charts.OrdinalAxisSpec(
+        renderSpec: charts.SmallTickRendererSpec(labelRotation: 60),)
+
     );
   }
 }
