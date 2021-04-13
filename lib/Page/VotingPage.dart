@@ -6,6 +6,9 @@ import 'package:testweb/service/DatabaseService.dart';
 import 'package:testweb/Page/ElectionResultPage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+String id = 'hello world';
+//String id = 'testing';
+
 class Voting extends StatefulWidget {
   final Election currentElection;
   int remainingCredits;
@@ -42,24 +45,26 @@ class _VotingState extends State<Voting> {
   void submitForm() async {
     print("testing");
     Voter vote = Voter(name: name);
-    for (int i = 0; i < widget.currentElection.candidateList.length; ++i) {
+    Election currentElection = await DatabaseService().getElectionWithID(id);
+
+    for (int i = 0; i < currentElection.candidateList.length; ++i) {
       Candidate candidate = Candidate(
-          name: widget.currentElection.candidateList[i].name,
-          description: widget.currentElection.candidateList[i].description);
+          name: currentElection.candidateList[i].name,
+          description: currentElection.candidateList[i].description);
 
       //Candidate candidate  = widget.currentElection.candidateList[i]; //this is actually a reference.
 
-      widget.currentElection.candidateList[i].numberOfVote += voteNumber[i];
+      currentElection.candidateList[i].numberOfVote += voteNumber[i];
       print("Before setting candidate.numberOfVote: " +
-          widget.currentElection.candidateList[i].numberOfVote.toString());
+          currentElection.candidateList[i].numberOfVote.toString());
       candidate.numberOfVote = 0;
       print("After setting candidate.numberOfVote: " +
-          widget.currentElection.candidateList[i].numberOfVote.toString());
+          currentElection.candidateList[i].numberOfVote.toString());
       candidate.numberOfVote += voteNumber[i];
 
       vote.candidateList.add(candidate);
     }
-    await DatabaseService().updateVoteResult(widget.currentElection, vote);
+    await DatabaseService().updateVoteResult(currentElection, vote);
 
     /*
     Navigator.push(

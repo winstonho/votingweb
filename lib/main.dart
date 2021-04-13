@@ -10,12 +10,15 @@ void main() {
   runApp(MyApp());
 }
 
+String id = 'hello world';
+//String id = 'testing';
+
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
 
 
   Future<String> createElectionData() async {
-    Election temp = Election(id: "hello world");
+    Election temp = Election(id: id);
     temp.name = "Testing Election";
     temp.candidateList.add(Candidate(name: "Topic 1: Operationalising Community Support on Sensitive Issues",
         description: ""));
@@ -37,7 +40,7 @@ class MyApp extends StatelessWidget {
 
   Future<Election> _getElection() async {
 
-    Election temp = await DatabaseService().getElectionWithID("hello world");
+    Election temp = await DatabaseService().getElectionWithID(id);
 
     return temp;
   }

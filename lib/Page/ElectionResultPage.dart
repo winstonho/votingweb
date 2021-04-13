@@ -6,6 +6,10 @@ import 'package:testweb/service/DatabaseService.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:testweb/Model/VoterList.dart';
 
+String id = 'hello world';
+//String id = 'testing';
+
+
 class ElectionResult extends StatefulWidget {
   @override
   _ElectionState createState() => _ElectionState();
@@ -170,7 +174,7 @@ class _ElectionState extends State<ElectionResult> {
 */
 
     return StreamBuilder<Election>(
-        stream: DatabaseService().getElectionStreamWithID("hello world"),
+        stream: DatabaseService().getElectionStreamWithID(id),
         builder: (BuildContext context, AsyncSnapshot<Election> snapshot) {
           if (!snapshot.hasData) return Container(child: Text("no election"));
           return view(snapshot.data);

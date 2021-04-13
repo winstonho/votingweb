@@ -5,6 +5,9 @@ import 'package:testweb/Page/VotingPage.dart';
 import 'package:testweb/service/DatabaseService.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:testweb/Model/VoterList.dart';
+String id = 'hello world';
+//String id = 'testing';
+
 
 class Insights extends StatefulWidget {
   @override
@@ -45,7 +48,7 @@ class _InsightState extends State<Insights> {
   Widget build(BuildContext context) {
 
     return StreamBuilder<VoterList>(
-        stream: DatabaseService().getVotersListStreamWithID("hello world"),
+        stream: DatabaseService().getVotersListStreamWithID(id),
         builder: (BuildContext context, AsyncSnapshot<VoterList> snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:

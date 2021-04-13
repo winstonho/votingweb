@@ -36,7 +36,7 @@ class DatabaseService {
      await data.reference.updateData({'candidateList' : jsonEncode(data.candidateList)});
 
      list.voterList.add(voter);
-     voterListCollection.document(data.id).setData(list.toJson());
+     voterListCollection.document(data.id).setData(list.toJson(),merge: true);
 
   }
 
